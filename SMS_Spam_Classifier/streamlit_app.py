@@ -11,8 +11,11 @@ from nltk.stem.porter import PorterStemmer
 import pandas as pd
 ps=PorterStemmer()   
 from xgboost import XGBClassifier
+<<<<<<< HEAD
+=======
 nltk.download('punkt')
 nltk.download('stopwords')
+>>>>>>> 3d47b8555834dff27e3b68b93ead18c2f8d13b7f
 
 
 def transform_text(text):
