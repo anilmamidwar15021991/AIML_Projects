@@ -11,7 +11,7 @@ from nltk.stem.porter import PorterStemmer
 import pandas as pd
 ps=PorterStemmer()   
 from xgboost import XGBClassifier
-
+from xgboost import XGBLabelEncoder
 
 def transform_text(text):
         text=text.lower()
