@@ -11,7 +11,7 @@ from nltk.stem.porter import PorterStemmer
 import pandas as pd
 ps=PorterStemmer()   
 from xgboost import XGBClassifier
-from xgboost import XGBLabelEncoder
+
 
 def transform_text(text):
         text=text.lower()
@@ -40,7 +40,7 @@ def transform_text(text):
 
 
 tfidf=pickle.load(open('SMS_Spam_Classifier/vectorizer.pkl','rb'))
-model=pickle.load(open('SMS_Spam_Classifier/spam_detector.pkl','rb'))
+model=pickle.load(open('SMS_Spam_Classifier/mnb_spam_detector.pkl','rb'))
 
 st.title("SMS Spam classifier")
 input_sms= st.text_area("Enter the message")
