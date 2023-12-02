@@ -40,7 +40,7 @@ def transform_text(text):
 
 
 tfidf=pickle.load(open('SMS_Spam_Classifier/vectorizer.pkl','rb'))
-model=pickle.load(open('spam_detector.pkl','rb'))
+model=pickle.load(open('SMS_Spam_Classifier/spam_detector.pkl','rb'))
 
 st.title("SMS Spam classifier")
 input_sms= st.text_area("Enter the message")
