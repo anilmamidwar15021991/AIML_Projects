@@ -1,4 +1,4 @@
-#Spam classifier using Multiple classifier models
+**#Spam classifier using Multiple classifier models**
 1) First train the multiple classifier models(NB,SVM,KNN,RF,Voting,Stacking)
 2) then save the model as pickle file
 3) For EC2 deployment - 
