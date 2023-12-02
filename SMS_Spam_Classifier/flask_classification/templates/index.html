@@ -1,0 +1,22 @@
+{% extends 'base.html' %} {% block content %}
+
+<center>
+    <h1>Enter the details</h1>
+    <form action="/predict" method=post enctype=multipart/form-data>
+        <div style="width:500px; margin:auto; background-color:#eee">
+
+            <label for="age" style="font-weight:700">SMS Text</label><br>
+            <input type=text name=age id="age">
+            <br><br>
+
+            
+        </div>
+        <br><br>
+
+        <input type=submit value=submit class="btn btn-primary|secondary|success|danger|warning|info|light|dark|link">
+
+
+        <h2>{{ result }}</h2>
+    </form>
+</center>
+{% endblock %}

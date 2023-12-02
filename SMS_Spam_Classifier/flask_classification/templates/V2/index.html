@@ -1,0 +1,112 @@
+{% extends 'base.html' %} {% block content %}
+
+
+<form action="/predict" method=post enctype=multipart/form-data>
+    <div class="container" style="width:500px; margin:auto; padding:30px">
+        <!-- <h3 style="text-align: center;" ">Enter the details</h3> -->
+        <div class="row mb-3 ">
+            <label for="age " class="col-sm-2 col-form-label ">Age</label>
+            <div class="col-sm-10 ">
+                <input type="number" name=age class="age" id="age ">
+            </div>
+        </div>
+
+        <div class="row mb-3 ">
+
+            <label for="sex " class="col-sm-2 col-form-label ">Sex</label>
+            <div class="col-sm-10 ">
+                <select class="sex" name="sex">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3 ">
+            <label for="job " class="col-sm-2 col-form-label ">Jobs</label>
+            <div class="col-sm-10">
+                <input type="number" name=job class="job" id="job">
+            </div>
+        </div>
+
+
+        <div class="row mb-3 ">
+
+            <label for="housing " class="col-sm-2 col-form-label ">Housing</label>
+            <div class="col-sm-10 ">
+                <select class="housing " name="housing">
+                    <option value="own">Own</option>
+                    <option value="free">Free</option>
+                    <option value="rent">Rent</option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="row mb-3 ">
+
+            <label for="saving_account " class="col-sm-2 col-form-label ">Savings Account</label>
+            <div class="col-sm-10 ">
+                <select class="saving_account" name="saving_account">
+                    <option value="little">Little</option>
+                    <option value="quite rich">Quite Rich</option>
+                    <option value="rich">Rich</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3 ">
+
+            <label for="checking_amount " class="col-sm-2 col-form-label ">Checking Amount</label>
+            <div class="col-sm-10 ">
+                <select class="checking_amount" name="checking_amount">
+                    <option value="little">Little</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="rich">Rich</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3 ">
+            <label for="credit_amount" class="col-sm-2 col-form-label ">Credit Amount</label>
+            <div class="col-sm-10 ">
+                <input type="number" name="credit_amount" class="credit_amount" id="credit_amount">
+            </div>
+        </div>
+
+        <div class="row mb-3 ">
+            <label for="duration" class="col-sm-2 col-form-label">Duration (Months)</label>
+            <div class="col-sm-10 ">
+                <input type="number" name="duration" class="duration" id="duration">
+            </div>
+        </div>
+
+        <div class="row mb-3 ">
+
+            <label for="purpose " class="col-sm-2 col-form-label">Purpose</label>
+            <div class="col-sm-10">
+                <select class="purpose" name="purpose">
+                    <option value="radio/TV ">Radio or TV</option>
+                    <option value="furniture/equipment">Furniture or Equipments</option>
+                    <option value="car">Car</option>
+                    <option value="business">Business</option>
+                    <option value="domestic appliances">Domestic Appliances</option>
+                    <option value="repairs">Repairs</option>
+                    <option value="vacation/others">Vacation or Others</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row ">
+            <div class="col-sm-10 offset-sm-2 ">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+
+        <br><br>
+        <h4>{{ result }}</h4>
+
+
+    </div>
+</form>
+{% endblock %}
