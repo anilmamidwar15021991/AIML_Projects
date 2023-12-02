@@ -2,5 +2,5 @@ pandas
 numpy
 nltk
 xgboost
-sklearn
+scikit-learn
 streamlit
