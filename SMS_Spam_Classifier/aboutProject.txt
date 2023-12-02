@@ -1,0 +1,6 @@
+Problem statement - the idea is to build a model/algorithm that can detect/classify if a text message is Spam or Ham (Not Spam).
+Project description:
+Dataset -  Dataset used is from kaggle - "text spam dataset", imbalanced dataset
+models used to train the dataset used are  -  Naive bayes, support vector machine,K-nearest neighbour, Random forest, stacking classifiervoting classifiervoting
+deployment - deployment used for this models are streamlit method,flask deployment, AWS EC2 deployment
+               
