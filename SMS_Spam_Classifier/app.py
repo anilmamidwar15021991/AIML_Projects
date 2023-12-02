@@ -39,7 +39,7 @@ def transform_text(text):
 
 
 
-tfidf=pickle.load(open('vectorizer.pkl','rb'))
+tfidf=pickle.load(open('SMS_Spam_Classifier/vectorizer.pkl','rb'))
 model=pickle.load(open('spam_detector.pkl','rb'))
 
 st.title("SMS Spam classifier")
