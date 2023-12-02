@@ -11,6 +11,7 @@ from nltk.stem.porter import PorterStemmer
 import pandas as pd
 ps=PorterStemmer()   
 from xgboost import XGBClassifier
+nltk.download('punkt')
 
 
 def transform_text(text):
