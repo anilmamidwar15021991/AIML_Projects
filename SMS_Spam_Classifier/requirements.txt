@@ -1,6 +1,6 @@
 pandas
 numpy
 nltk
-xgboost
+xgboost==1.5.2
 scikit-learn
 streamlit
