@@ -1,5 +1,5 @@
 import streamlit as st
-
+from PIL import Image
 import pickle
 import pandas as pd
 import numpy as np
@@ -11,11 +11,10 @@ from nltk.stem.porter import PorterStemmer
 import pandas as pd
 ps=PorterStemmer()   
 from xgboost import XGBClassifier
-<<<<<<< HEAD
-=======
+
 nltk.download('punkt')
 nltk.download('stopwords')
->>>>>>> 3d47b8555834dff27e3b68b93ead18c2f8d13b7f
+
 
 
 def transform_text(text):
@@ -43,12 +42,30 @@ def transform_text(text):
 
 
 
+#remove SMS_Spam_Classifier name from path while deploying locally 
 
 tfidf=pickle.load(open('SMS_Spam_Classifier/vectorizer.pkl','rb'))
 model=pickle.load(open('SMS_Spam_Classifier/mnb_spam_detector.pkl','rb'))
 
 st.title("SMS Spam classifier")
-input_sms= st.text_area("Enter the message")
+
+#content
+
+st.image(Image.open('spam_image.jpeg'))
+
+st.write("""
+A spam classifier uses machine learning to distinguish between legitimate and unsolicited emails . it employs algorithm to analyze content and other features to flag emails spam or not spam.
+
+Algorithm used to train the model is stacking classifier(SVM,NB,Xgboost)
+
+"""
+ 
+)
+
+
+
+
+input_sms= st.text_area("Enter the message to check")
 
 
 if st.button('Predict'):
@@ -72,4 +89,14 @@ if st.button('Predict'):
         st.header("Spam")
     else:
         st.header("Not Spam")
+        
+
+c1,c2,c3 = st.columns(3)
+with c1:
+    st.info('**GitHub:[@anilremo23](https://github.com/anilremo23)**',icon="🧠")
+with c2:
+    st.info('**Kaggle:[@remoanil](https://www.kaggle.com/remoanil)**',icon="💻")
+with c3:
+    st.info('**LinkedIn:[@AnilMamidwar](https://www.linkedin.com/in/anil-mamidwar-001b6418/)**',icon="👨‍💼")
+    
       
