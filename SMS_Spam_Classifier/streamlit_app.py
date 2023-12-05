@@ -51,7 +51,7 @@ st.title("SMS Spam classifier")
 
 #content
 
-st.image(Image.open('spam_image.jpeg'))
+st.image(Image.open('SMS_Spam_Classifier/spam_image.jpeg'))
 
 st.write("""
 A spam classifier uses machine learning to distinguish between legitimate and unsolicited emails . it employs algorithm to analyze content and other features to flag emails spam or not spam.
