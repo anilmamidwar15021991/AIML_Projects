@@ -1,0 +1,19 @@
+Requirement already satisfied: keras in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (2.10.0)
+Collecting keras
+  Using cached keras-3.0.4-py3-none-any.whl.metadata (4.8 kB)
+Requirement already satisfied: absl-py in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (from keras) (2.1.0)
+Requirement already satisfied: numpy in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (from keras) (1.26.4)
+Requirement already satisfied: rich in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (from keras) (13.7.0)
+Requirement already satisfied: namex in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (from keras) (0.0.7)
+Requirement already satisfied: h5py in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (from keras) (3.10.0)
+Requirement already satisfied: dm-tree in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (from keras) (0.1.8)
+Requirement already satisfied: markdown-it-py>=2.2.0 in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (from rich->keras) (3.0.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (from rich->keras) (2.17.2)
+Requirement already satisfied: mdurl~=0.1 in c:\users\maste\anaconda3\envs\aigeneratedtext\lib\site-packages (from markdown-it-py>=2.2.0->rich->keras) (0.1.2)
+Using cached keras-3.0.4-py3-none-any.whl (1.0 MB)
+Installing collected packages: keras
+  Attempting uninstall: keras
+    Found existing installation: keras 2.10.0
+    Uninstalling keras-2.10.0:
+      Successfully uninstalled keras-2.10.0
+Successfully installed keras-3.0.4
