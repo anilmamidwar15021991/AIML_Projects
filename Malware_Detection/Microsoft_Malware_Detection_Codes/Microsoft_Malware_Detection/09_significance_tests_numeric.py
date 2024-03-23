@@ -1,0 +1,36 @@
+# 9. Statistical Significance Test: ANOVA Test
+
+# significance value
+alpha = 0.05
+
+significant_numerical_variables = []
+for col in true_numerical_columns:
+    # Get F and p value
+    F, p = f_oneway(train[train.HasDetections == 1][col].dropna(),
+                    train[train.HasDetections == 0][col].dropna())
+
+    # Determine whether to reject or keep null hypothesis
+    print(col.ljust(50), ',   F-statistic=%.5f, p=%.5f' % (F, p))
+    if p <= alpha:
+        significant_numerical_variables.append(col)
+
+out = f_oneway(train[train.HasDetections == 1][col].dropna(),
+               train[train.HasDetections == 0][col].dropna())
+
+out
+
+# See Significant variables
+print(significant_numerical_variables)
+
+# ANOVA with statsmodels api
+
+import statsmodels.api as sm
+from statsmodels.stats.anova import anova_lm
+from statsmodels.formula.api import ols
+
+# Fit ANOVA model
+model = ols('Census_ProcessorCoreCount ~ C(HasDetections)', train).fit()
+print(f"Overall model F({model.df_model: .0f}, {model.df_resid: .0f}) = {model.fvalue: .3f}, p = {model.f_pvalue: .4f}")
+
+res = sm.stats.anova_lm(model, typ=2)
+res

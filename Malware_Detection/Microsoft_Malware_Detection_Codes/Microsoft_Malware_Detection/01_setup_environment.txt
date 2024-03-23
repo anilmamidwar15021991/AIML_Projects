@@ -1,0 +1,51 @@
+Setup Environment
+
+The following outlines the steps to setup a fresh conda environment and start working using Jupyter notebook.
+
+
+# STEP 0: Install Anaconda
+
+Go to 'Anaconda.com' and locate their download page. At the time of writing this, the 
+download page is located at: https://www.anaconda.com/products/individual. 
+Select your OS, download it and install in your computer.
+
+
+
+# STEP 1: Download Microsoft_Malware_Detection.zip from the course resources lecture and Unzip it.
+
+
+
+# STEP 2: Open Command Prompt / Terminal and type:
+
+```
+cd Microsoft_Malware_Detection
+```
+
+
+# STEP 3: Run Following commands in terminal or cmd to Setup the conda environment and install packages
+
+```
+conda create -n cse python==3.7
+conda activate myenv
+conda install pip
+pip install -r requirements.txt
+```
+
+
+
+# STEP 4: Open Jupyter Notebook 
+
+```
+jupyter notebook
+```
+
+Jupyter screen will open in your default browser. 
+Now, open Malware_Detection.ipynb and start working.
+If you don't find it, make sure you unzipped the file and ran `cd Microsoft_Malware_Detection` command.
+
+
+
+# STEP 5: Decactivate conda env when done!
+```
+conda deactivate
+```

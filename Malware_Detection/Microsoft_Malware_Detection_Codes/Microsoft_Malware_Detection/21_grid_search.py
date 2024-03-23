@@ -1,0 +1,54 @@
+# 21. Hyperparameter tuning: Grid Search
+
+# Define the estimator
+lgbmclassifier = LGBMClassifier(random_state=0)
+# Define the parameters gird
+param_grid = {'n_estimator': [100, 200],
+              'num_leaves': [256, 128],
+              'max_depth': [5, 8],
+              'learning_rate': [0.05, 0.1],
+              'reg_alpha': [0.1, 0.5],
+              'min_data_in_leaf': [30, 50]}
+
+# run grid search
+grid = GridSearchCV(lgbmclassifier, param_grid=param_grid, refit=True, verbose=3, n_jobs=-1, cv=2)
+
+# fit the model for grid search
+grid.fit(X_train, y_train)
+")
+
+# Best Score
+grid.best_score_  # Accuracy
+
+# Best parameter after hyper parameter tuning
+print(grid.best_params_)
+
+# Moel Parameters
+print(grid.best_estimator_)
+
+pd.DataFrame(grid.cv_results_)
+
+# How to do grid search for different metric?
+from sklearn.metrics import f1_score, make_scorer
+
+f1_scorer = make_scorer(f1_score)
+
+# run grid search
+grid = GridSearchCV(lgbmclassifier, param_grid=param_grid, refit=True, verbose=3, n_jobs=-1, cv=2,
+                    scoring=f1_scorer)
+
+# fit the model for grid search
+grid.fit(X_train, y_train)
+
+# Prediction using best parameters
+y_grid_pred = grid.predict(X_test)
+y_prob_grid_pred = grid.predict_proba(X_test)
+y_prob_grid_pred = [x[1] for x in y_prob_grid_pred]
+print("Y predicted : ", y_grid_pred)
+print("Y probability predicted : ", y_prob_grid_pred[:5])
+
+# Evaluation Metrics
+compute_evaluation_metric(grid.best_estimator_, X_test, y_test, y_grid_pred, y_prob_grid_pred)
+
+# Capture rates
+captures(y_test, y_grid_pred, y_prob_grid_pred)

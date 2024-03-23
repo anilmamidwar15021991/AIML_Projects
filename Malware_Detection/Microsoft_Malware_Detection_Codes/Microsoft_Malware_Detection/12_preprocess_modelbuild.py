@@ -1,0 +1,34 @@
+# 13. Data Preprocessing for model building
+
+# Save train df to csv file
+train.to_csv("Data/Intermediate/training_df_processed.csv",index = False)
+
+# Read train df
+train = pd.read_csv("Data/Intermediate/training_df_processed.csv")
+
+train.drop('Unnamed: 0', axis=1, inplace=True)
+train.head()
+
+train = train.drop(['MachineIdentifier'], axis=1)
+
+# na value treatment
+for col in train:
+    missing_value_percent = train[col].isnull().sum() * 100 / train.shape[0]
+    if missing_value_percent >= 20:
+        train.drop(col,axis=1, inplace = True)
+    else:
+        train = train[train[col].notna()]
+
+
+# Split the y variable series and x variables dataset
+X = train.drop(['HasDetections'],axis=1)
+y = train.HasDetections
+
+# Delete train df
+del train
+gc.collect()
+
+
+# Split the dataset into the training set and test set
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 0)
+X_train.head()

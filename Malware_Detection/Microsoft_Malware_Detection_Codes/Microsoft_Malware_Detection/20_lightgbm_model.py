@@ -1,0 +1,26 @@
+# 20. LightGBM
+from   lightgbm import LGBMClassifier
+
+import re
+X_train = X_train.rename(columns = lambda x:re.sub('[^A-Za-z0-9_]+', '', x))
+
+# Define the model
+lgbc = LGBMClassifier(random_state=0, n_jobs = -1)
+# Train the model
+lgbc.fit(X_train,y_train)
+lgbc
+
+
+# Prediction
+y_pred_lgbc = lgbc.predict(X_test)
+y_prob_pred_lgbc = lgbc.predict_proba(X_test)
+y_prob_pred_lgbc = [x[1] for x in y_prob_pred_lgbc]
+print("Y predicted : ",y_pred_lgbc)
+print("Y probability predicted : ",y_prob_pred_lgbc[:5])
+
+
+# Evaluation Metrices
+compute_evaluation_metric(lgbc, X_test, y_test, y_pred_lgbc, y_prob_pred_lgbc)
+
+# Capture rates
+captures(y_test, y_pred_lgbc, y_prob_pred_lgbc)

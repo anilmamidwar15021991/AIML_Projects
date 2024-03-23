@@ -1,0 +1,76 @@
+# 10. Feature Engineering
+train.head()
+
+# Engine Version
+train['EngineVersion_2'] = train['EngineVersion'].apply(lambda x: x.split('.')[2]).astype('category')
+train['EngineVersion_3'] = train['EngineVersion'].apply(lambda x: x.split('.')[3]).astype('category')
+
+
+# App version
+train['AppVersion_1'] = train['AppVersion'].apply(lambda x: x.split('.')[1]).astype('category')
+train['AppVersion_2'] = train['AppVersion'].apply(lambda x: x.split('.')[2]).astype('category')
+train['AppVersion_3'] = train['AppVersion'].apply(lambda x: x.split('.')[3]).astype('category')
+
+
+# Anti Virus Version
+train['AvSigVersion_0'] = train['AvSigVersion'].apply(lambda x: x.split('.')[0]).astype('category')
+train['AvSigVersion_1'] = train['AvSigVersion'].apply(lambda x: x.split('.')[1]).astype('category')
+train['AvSigVersion_2'] = train['AvSigVersion'].apply(lambda x: x.split('.')[2]).astype('category')
+
+
+# OSBuild
+train['OsBuildLab']   = train['OsBuildLab'].fillna('0.0.0.0.0-0')
+train['OsBuildLab_0'] = train['OsBuildLab'].apply(lambda x: x.split('.')[0]).astype('category')
+train['OsBuildLab_1'] = train['OsBuildLab'].apply(lambda x: x.split('.')[1]).astype('category')
+train['OsBuildLab_2'] = train['OsBuildLab'].apply(lambda x: x.split('.')[2]).astype('category')
+train['OsBuildLab_3'] = train['OsBuildLab'].apply(lambda x: x.split('.')[3]).astype('category')
+
+
+# Operating System Version
+train['Census_OSVersion_0'] = train['Census_OSVersion'].apply(lambda x: x.split('.')[0]).astype('category')
+train['Census_OSVersion_1'] = train['Census_OSVersion'].apply(lambda x: x.split('.')[1]).astype('category')
+train['Census_OSVersion_2'] = train['Census_OSVersion'].apply(lambda x: x.split('.')[2]).astype('category')
+train['Census_OSVersion_3'] = train['Census_OSVersion'].apply(lambda x: x.split('.')[3]).astype('category')
+
+
+# Storage
+train['primary_drive_c_ratio'] = train['Census_SystemVolumeTotalCapacity'] / train['Census_PrimaryDiskTotalCapacity']
+train['non_primary_drive_MB']  = train['Census_PrimaryDiskTotalCapacity'] - train['Census_SystemVolumeTotalCapacity']
+
+
+# Engineer display features
+# Aspect Ratio
+train['aspect_ratio'] = train['Census_InternalPrimaryDisplayResolutionHorizontal']/ train['Census_InternalPrimaryDisplayResolutionVertical']
+
+
+
+# Engineer monitor dimensions features - categorical
+# Monitor Dimensions
+train['monitor_dims'] = train['Census_InternalPrimaryDisplayResolutionHorizontal'].astype(str) + '*' + train['Census_InternalPrimaryDisplayResolutionVertical'].astype('str')
+train['monitor_dims'] = train['monitor_dims'].astype('category')
+
+
+
+# Engineer DPI features
+# DPI
+train['dpi']        = ((train['Census_InternalPrimaryDisplayResolutionHorizontal']**2 + train['Census_InternalPrimaryDisplayResolutionVertical']**2)**.5)/(train['Census_InternalPrimaryDiagonalDisplaySizeInInches'])
+train['dpi_square'] = train['dpi'] ** 2
+
+
+
+# Engineer MP feature
+train['MegaPixels'] = (train['Census_InternalPrimaryDisplayResolutionHorizontal'] * train['Census_InternalPrimaryDisplayResolutionVertical'])/1e6
+
+
+# Engineer Screen Area feature
+train['Screen_Area'] = (train['aspect_ratio']* (train['Census_InternalPrimaryDiagonalDisplaySizeInInches']**2))/(train['aspect_ratio']**2 + 1)
+train.head()
+
+
+# Engineer RAM per processor feature
+
+# RAM per processor
+train['ram_per_processor'] = train['Census_TotalPhysicalRAM']/ train['Census_ProcessorCoreCount']
+train['new_num_0'] = train['Census_InternalPrimaryDiagonalDisplaySizeInInches'] / train['Census_ProcessorCoreCount']
+train['new_num_1'] = train['Census_ProcessorCoreCount'] * train['Census_InternalPrimaryDiagonalDisplaySizeInInches']
+train.head()

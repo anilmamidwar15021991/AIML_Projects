@@ -1,0 +1,46 @@
+# 11. Feature Encoding
+# Frequency Encoding
+
+# Add the engineered features to the variable caterorical_columns
+categorical_columns = categorical_columns + ['EngineVersion_2', 'EngineVersion_3',
+       'AppVersion_1', 'AppVersion_2', 'AppVersion_3', 'AvSigVersion_0',
+       'AvSigVersion_1', 'AvSigVersion_2', 'OsBuildLab_0', 'OsBuildLab_1',
+       'OsBuildLab_2', 'OsBuildLab_3', 'Census_OSVersion_0',
+       'Census_OSVersion_1', 'Census_OSVersion_2', 'Census_OSVersion_3',
+       'monitor_dims']
+
+
+# Frequecny encoding variables
+frequency_encoded_variables = []
+for col in categorical_columns:
+    if train[col].nunique() > 30:
+        print(col, train[col].nunique())
+        frequency_encoded_variables.append(col)
+
+
+# Remove machine identifier from list
+frequency_encoded_variables.remove("MachineIdentifier")
+categorical_columns.remove('MachineIdentifier')
+
+
+# Convert dtype of categorical variables to category
+for col in categorical_columns:
+    train[col] = train[col].astype('category')
+
+
+# Frequency enocde the variables
+for variable in tqdm_notebook(frequency_encoded_variables):
+    fq = train.groupby(variable).size()/len(train)
+    train.loc[:, "{}".format(variable)] = train[variable].map(fq)
+    categorical_columns.remove(variable)
+
+
+# 12. Label Encoding
+indexer = {}
+for col in tqdm_notebook(categorical_columns):
+    _, indexer[col] = pd.factorize(train[col])
+    train[col] = indexer[col].get_indexer(train[col])
+
+print(col)
+
+train = reduce_mem_usage(train)

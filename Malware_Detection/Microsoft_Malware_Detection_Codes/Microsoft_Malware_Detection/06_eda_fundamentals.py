@@ -1,0 +1,91 @@
+# 6. Exploratory Data Analysis
+train = pd.read_csv('Data/Intermediate/malware_df_clean.csv', nrows=nrows)
+train.head()
+train.drop(0, inplace=True)
+
+# Plot proportion of columns by data type using a pie chart
+variables = {
+    'categorical_columns': len(categorical_columns),
+    'binary_columns': len(binary_columns),
+    'true_numerical_columns': len(true_numerical_columns)
+}
+
+# Plot
+pie_trace = go.Pie(labels=list(variables.keys()), values=list(variables.values()))
+layout = dict(title="Variable types", height=400, width=800)
+fig = dict(data=[pie_trace], layout=layout)
+py.iplot(fig)
+
+# PLot cardinality
+cardinality = []
+for c in categorical_columns:
+    if c == 'MachineIdentifier': continue
+    cardinality.append([c, train[c].nunique()])
+
+# Sort
+cardinality.sort(key=lambda x: x[1], reverse=False)
+
+# Plot
+trace = go.Bar(y=[x[0] for x in cardinality],
+               x=[x[1] for x in cardinality],
+               orientation='h', marker=dict(color='rgb(49,130,189)'), name='train')
+
+layout = go.Layout(
+    title='Categorical cardinality', height=1600, width=800,
+    xaxis=dict(
+        title='Number of categories',
+        titlefont=dict(size=16, color='rgb(107, 107, 107)'),
+        domain=[0.25, 1]
+    ),
+    barmode='group',
+    bargap=0.1,
+    bargroupgap=0.1
+)
+
+fig = go.Figure(data=[trace], layout=layout)
+py.iplot(fig)
+
+# Plot Cardinality
+cardinality = []
+for c in categorical_columns:
+    if c == 'MachineIdentifier': continue
+    if train[c].nunique() >= 30:
+        print("High cardinality: ", c)
+        continue
+    cardinality.append([c, train[c].nunique()])
+
+# Sort
+cardinality.sort(key=lambda x: x[1], reverse=False)
+
+# Plot
+trace = go.Bar(y=[x[0] for x in cardinality],
+               x=[x[1] for x in cardinality],
+               orientation='h', marker=dict(color='rgb(49,130,189)'), name='train')
+
+layout = go.Layout(
+    title='Categorical cardinality', height=1600, width=800,
+    xaxis=dict(
+        title='Number of categories',
+        titlefont=dict(size=16, color='rgb(107, 107, 107)'),
+        domain=[0.25, 1]
+    ),
+    barmode='group',
+    bargap=0.1,
+    bargroupgap=0.1
+)
+
+fig = go.Figure(data=[trace], layout=layout)
+py.iplot(fig)
+
+# Get count of target class
+train['HasDetections'].value_counts()
+
+# Draw a countplot to check the distribution of target variable
+sns.countplot(y=train['HasDetections'], data=train)
+plt.xlabel("Count of each Target class")
+plt.ylabel("Target classes")
+plt.show()
+
+# Check the correlations
+plt.figure(figsize=(30, 30))
+p = sns.heatmap(train.corr(), annot=True, cmap='RdYlGn', center=0)

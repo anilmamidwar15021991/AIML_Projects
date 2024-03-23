@@ -1,0 +1,47 @@
+# 18. Random Forest
+# Define the model
+rf = RandomForestClassifier(random_state=0, n_jobs = -1)
+
+# Train the model
+rf.fit(X_train,y_train)
+rf
+
+# Prediction
+y_pred_rf = rf.predict(X_test)
+y_prob_pred_rf = rf.predict_proba(X_test)
+y_prob_pred_rf = [x[1] for x in y_prob_pred_rf]
+print("Y predicted : ", y_pred_rf)
+print("Y probability predicted : ", y_prob_pred_rf[:5])
+
+
+# Confusion matrix and report
+print("\n Confusion Matrix : \n",confusion_matrix(y_test, y_pred_rf))
+print("\n Classification Report : \n",classification_report(y_test, y_pred_rf))
+
+# Compute Evaluation Metric
+compute_evaluation_metric(rf, X_test, y_test, y_pred_rf, y_prob_pred_rf)
+
+# Capture rates
+captures(y_test, y_pred_rf, y_prob_pred_rf)
+
+
+# Random Forest with n_estimator = 200
+# Define the model
+rf = RandomForestClassifier(random_state=0, n_jobs = -1, n_estimators = 200)
+
+# Train the model
+rf.fit(X_train,y_train)
+rf
+
+# Prediction
+y_pred_rf = rf.predict(X_test)
+y_prob_pred_rf = rf.predict_proba(X_test)
+y_prob_pred_rf = [x[1] for x in y_prob_pred_rf]
+print("Y predicted : ", y_pred_rf)
+print("Y probability predicted : ", y_prob_pred_rf[:5])
+
+# Compute Evaluation Metric
+compute_evaluation_metric(rf, X_test, y_test, y_pred_rf, y_prob_pred_rf)
+
+# Cature rates
+captures(y_test, y_pred_rf, y_prob_pred_rf)

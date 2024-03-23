@@ -1,0 +1,48 @@
+# 3. Optimize Memory Used by Data</h2>
+train.memory_usage(deep=True).sum() / 1024**2
+
+train.dtypes
+
+# - int8 / uint8 : consumes 1 byte of memory, range between -128/127 or 0/255
+# - bool : consumes 1 byte, true or false
+# - float16 / int16 / uint16: consumes 2 bytes of memory, range between -32768 and 32767 or 0/65535
+# - float32 / int32 / uint32 : consumes 4 bytes of memory, range between -2147483648 and 2147483647
+# - float64 / int64 / uint64: consumes 8 bytes of memory
+
+print('int64 min: ', np.iinfo(np.int64).min)
+print('int64 max: ', np.iinfo(np.int64).max)
+print('int8 min: ', np.iinfo(np.int8).min)
+print('int8 max: ', np.iinfo(np.int8).max)
+
+# Reduce memory usage
+def reduce_mem_usage(df, verbose=True):
+    numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
+    start_mem = df.memory_usage(deep=True).sum() / 1024**2
+    for col in df.columns:
+        col_type = df[col].dtypes
+        if col_type in numerics:
+            c_min = df[col].min()
+            c_max = df[col].max()
+            if str(col_type)[:3] == 'int':
+                if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
+                    df[col] = df[col].astype(np.int8)
+                elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
+                    df[col] = df[col].astype(np.int16)
+                elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
+                    df[col] = df[col].astype(np.int32)
+                elif c_min > np.iinfo(np.int64).min and c_max < np.iinfo(np.int64).max:
+                    df[col] = df[col].astype(np.int64)
+            else:
+                if c_min > np.finfo(np.float16).min and c_max < np.finfo(np.float16).max:
+                    df[col] = df[col].astype(np.float16)
+                elif c_min > np.finfo(np.float32).min and c_max < np.finfo(np.float32).max:
+                    df[col] = df[col].astype(np.float32)
+                else:
+                    df[col] = df[col].astype(np.float64)
+    end_mem = df.memory_usage(deep=True).sum() / 1024**2
+    if verbose: print('Mem. usage decreased to {:5.2f} Mb ({:.1f}% reduction)'.format(end_mem, 100 * (start_mem - end_mem) / start_mem))
+    return df
+
+
+# Reduce the memory size of the dataframe
+train = reduce_mem_usage(train)

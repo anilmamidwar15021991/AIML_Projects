@@ -1,0 +1,34 @@
+# 8. Statistical Significance Test: Chi Square Test
+
+from scipy.stats import chi2_contingency
+
+# significance value
+alpha = 0.05
+
+significant_categorical_variables = []
+
+for col in categorical_columns[1:] + binary_columns:
+
+    temp = pd.crosstab(train[col],train['HasDetections'].astype('category'))
+    # Chi-square stat , p-value, degrees of freedom, expected frequencies
+    stat, p, dof, expected = chi2_contingency(temp)
+    print(col.ljust(40), ',  chisquared=%.5f,   p-value=%.5f' % (stat, p))
+
+    if p <= alpha:
+        significant_categorical_variables.append(col)
+
+# Significant variables
+print(significant_categorical_variables)
+ctab = pd.crosstab(train['Processor'],train['HasDetections'].astype('category'))
+ctab
+
+# Calc odds
+ctab.columns = ctab.columns.add_categories('odds')
+ctab['odds'] = ctab[1] / ctab[0]
+ctab
+
+
+# Odds Ratio
+ctab.columns = ctab.columns.add_categories('odds_ratio')
+ctab['odds_ratio'] = ctab['odds'] / (ctab[1].sum()/ctab[0].sum())
+ctab

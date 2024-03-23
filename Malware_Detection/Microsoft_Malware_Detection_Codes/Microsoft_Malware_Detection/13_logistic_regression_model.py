@@ -1,0 +1,64 @@
+# 14. Logistic Regression
+
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
+# Scale the X variables
+scaler = MinMaxScaler()
+scaler.fit(X)
+X_ = scaler.transform(X)
+
+# Check
+mx = np.apply_along_axis(np.max, 0, X_)
+mi = np.apply_along_axis(np.min, 0, X_)
+print(mx)
+print(mi)
+
+X_train_, X_test_, y_train, y_test = train_test_split(X_, y, test_size=0.3, random_state=0)
+
+# Defining the model
+lr = LogisticRegression(random_state=0)
+
+# Training the model:
+lr.fit(X_train_, y_train)
+lr
+
+# Examine coefs
+lr_coefs = [(col, coef) for col, coef in zip(X_train.columns[1:], lr.coef_[0])]
+sorted(lr_coefs, key=lambda x: -x[1])
+
+# Extract impactful columns (large coefs)
+lr_coefs = [(col, coef, pos) for pos, (col, coef) in enumerate(zip(X_train.columns[1:], lr.coef_[0]))]
+top_ = sorted(lr_coefs, key=lambda x: -abs(x[1]))[:25]
+top_columns = [name for name, coef, pos in top_]
+top_column_pos = [pos for name, coef, pos in top_]
+
+print(top_columns, "\n")
+print(top_column_pos)
+
+# Prediction Probability Scores
+y_prob_lr = lr.predict_proba(X_test_)
+y_prob_lr
+
+# Predict class for test dataset
+y_pred_lr = lr.predict(X_test_)
+y_pred_lr
+
+y_prob_lr = [x[1] for x in y_prob_lr]
+print("Y predicted : ", y_pred_lr)
+print("Y probability predicted : ", y_prob_lr[:5])
+
+# Logistic Regression with statsmodels api
+import statsmodels.api as sm
+import pandas as pd
+
+# building the model and fitting the data
+log_reg = sm.Logit(y_train, X_train_[:, top_column_pos]).fit()
+
+print(log_reg.summary())
+yhat = log_reg.predict(X_test_[:, top_column_pos])
+print(yhat[:5])
+
+pred = np.round(yhat)
+print(pred)

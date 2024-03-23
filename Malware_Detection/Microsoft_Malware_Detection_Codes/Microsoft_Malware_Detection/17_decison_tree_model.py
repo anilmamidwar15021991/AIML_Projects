@@ -1,0 +1,88 @@
+# 17. Decision Tree
+
+from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import export_text
+
+# Define the model
+dt = DecisionTreeClassifier(random_state=0)
+
+# Train the model
+dt.fit(X_train, y_train)
+
+colnames_list = X_train.columns.values.tolist()
+r = export_text(dt, feature_names=colnames_list)
+print(r)
+
+# Visualize
+tree.plot_tree(dt)
+
+
+# Predictions
+y_pred_dt = dt.predict(X_test)
+y_prob_pred_dt = dt.predict_proba(X_test)
+y_prob_pred_dt = [x[1] for x in y_prob_pred_dt]
+print("Y predicted : ",y_pred_dt[:10])
+print("Y probability: ",y_prob_pred_dt[:10])
+
+
+# Confusion matrix and report
+print("\n Confusion Matrix : \n", confusion_matrix(y_test, y_pred_dt))
+print("\n Classification Report : \n", classification_report(y_test, y_pred_dt))
+
+# Compute Evaluation Metric
+compute_evaluation_metric(dt, X_test, y_test, y_pred_dt, y_prob_pred_dt)
+
+# Depth of Decision Tree
+print(dt.tree_.max_depth)
+
+
+# Decision Tree with max_depth = 32
+# Define the model
+dt = DecisionTreeClassifier(random_state=0, max_depth = 32)
+
+# Train the model
+dt.fit(X_train, y_train)
+dt
+
+# Prediction
+y_pred_dt = dt.predict(X_test)
+y_prob_pred_dt = dt.predict_proba(X_test)
+y_prob_pred_dt = [x[1] for x in y_prob_pred_dt]
+print("Y predicted : ",y_pred_dt)
+print("Y probability predicted : ",y_prob_pred_dt[:5])
+
+# Visualize
+tree.plot_tree(dt)
+
+
+# Evaluation Metrics
+print("\n Confusion Matrix : \n", confusion_matrix(y_test, y_pred_dt))
+print("\n Classification Report : \n", classification_report(y_test, y_pred_dt))
+compute_evaluation_metric(dt, X_test, y_test, y_pred_dt, y_prob_pred_dt)
+
+# Define the model with max_depth = 16
+dt = DecisionTreeClassifier(random_state=0, max_depth = 16)
+
+# Train the model
+dt.fit(X_train,y_train)
+dt
+
+
+# Predictions
+y_pred_dt = dt.predict(X_test)
+y_prob_pred_dt = dt.predict_proba(X_test)
+y_prob_pred_dt = [x[1] for x in y_prob_pred_dt]
+print("Y predicted : ",y_pred_dt)
+print("Y probability predicted : ",y_prob_pred_dt[:5])
+
+# Visualize
+fig = plt.figure(figsize=(25,20))
+_ = tree.plot_tree(dt, feature_names=X_train.columns.values.tolist(), filled=True)
+
+
+# Compute Evaluation Metric
+compute_evaluation_metric(dt, X_test, y_test, y_pred_dt, y_prob_pred_dt)
+
+# Validate with probability bins
+captures(y_test, y_pred_dt, y_prob_pred_dt)

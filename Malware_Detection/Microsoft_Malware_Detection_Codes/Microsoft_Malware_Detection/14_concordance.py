@@ -1,0 +1,41 @@
+# 15. Concordance
+from sklearn.metrics import confusion_matrix , classification_report, accuracy_score
+from sklearn.metrics import roc_auc_score, plot_roc_curve, precision_recall_curve, plot_precision_recall_curve
+
+
+print("\n Confusion Matrix : \n",confusion_matrix(y_test, y_pred_lr))
+print("\n Classification Report : \n",classification_report(y_test, y_pred_lr))
+
+
+# Compute Concordance
+from bisect import bisect_left, bisect_right
+
+actuals = y_test.values
+preds_probs = lr.predict_proba(X_test_)
+preds = [x[1] for x in preds_probs]
+
+
+def concordance(actuals, preds):
+    ones_preds  = [p for a,p in zip(actuals, preds) if a == 1]
+    zeros_preds = [p for a,p in zip(actuals, preds) if a == 0]
+    n_ones = len(ones_preds)
+    n_total_pairs =  float(n_ones) * float(len(actuals) - n_ones)
+    # print("Total Pairs: ", n_total_pairs)
+
+    zeros_sorted = sorted(zeros_preds)
+
+    conc = 0; disc = 0; ties = 0;
+    for i, one_pred in enumerate(ones_preds):
+        cur_conc = bisect_left(zeros_sorted, one_pred)
+        cur_ties = bisect_right(zeros_sorted, one_pred) - cur_conc
+        conc += cur_conc
+        ties += cur_ties
+        disc += float(len(zeros_sorted)) - cur_ties - cur_conc
+
+    concordance = conc/n_total_pairs
+    discordance = disc/n_total_pairs
+    ties_perc = ties/n_total_pairs
+    print(round(concordance, 2), round(discordance, 2), ties_perc)
+    return concordance
+
+concordance(y_test, y_prob_lr)

@@ -1,0 +1,23 @@
+# All Evaluation Metrics incl ROC, PR
+
+# Combine evaluation metrics in one function and report it.
+def compute_evaluation_metric(model, x_test, y_actual, y_predicted, y_predicted_prob):
+    print("\n Accuracy Score : ",accuracy_score(y_actual,y_predicted))
+    print("\n AUC Score : ", roc_auc_score(y_actual, y_predicted_prob))
+    print("\n Confusion Matrix : \n",confusion_matrix(y_actual, y_predicted))
+    print("\n Classification Report : \n",classification_report(y_actual, y_predicted))
+    print("\n Concordance Index : ", concordance(y_actual, y_predicted_prob))
+    print("\n ROC curve : \n")
+    plot_roc_curve(model, x_test, y_actual)
+    plt.show()
+
+    print("\n PR curve : \n")
+    plot_precision_recall_curve(model, x_test, y_actual)
+    plt.show()
+
+import matplotlib.pyplot as plt
+plt.rcParams["figure.figsize"] = (7,7)
+plt.rcParams["figure.dpi"] = 100
+
+# Compute Evaluation Metric
+compute_evaluation_metric(lr, X_test_, y_test, y_pred_lr, y_prob_lr)

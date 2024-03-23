@@ -1,0 +1,15 @@
+# 22. Feature Importance Scores
+
+lgbmclassifier.feature_importances_
+
+
+# Feature Importance Metric
+feature_importance_df = pd.DataFrame({'feature' : X_train.columns, 'importance' : lgbmclassifier.feature_importances_ })
+feature_importance_df = feature_importance_df.iloc[:30,:]
+feature_importance_df.sort_values(by="importance", ascending=False)
+
+
+# Plot Feature Importance
+plt.figure(figsize=(16, 12));
+sns.barplot(x="importance", y="feature", data=feature_importance_df.sort_values(by="importance", ascending=False));
+plt.title('LGBM Features');

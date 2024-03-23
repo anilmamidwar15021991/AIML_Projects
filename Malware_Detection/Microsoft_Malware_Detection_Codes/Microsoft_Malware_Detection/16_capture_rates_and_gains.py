@@ -1,0 +1,126 @@
+# 16. Capture rates and Gains
+
+# Create Validation set
+validation_df = {'y_test': y_test, 'y_pred': y_pred_lr, 'y_pred_prob': y_prob_lr}
+validation_df = pd.DataFrame(data=validation_df)
+
+# Create 10 equal sized bins and add it as new column
+validation_df['bin_y_pred_prob'] = pd.qcut(validation_df['y_pred_prob'], q=10)
+validation_df.head()
+
+# Change x label
+x_label = []
+
+for i in range(len(validation_df['bin_y_pred_prob'].cat.categories[::-1].astype('str'))):
+    x_label.append(
+        "Bin" + str(i + 1) + "(" + validation_df['bin_y_pred_prob'].cat.categories[::-1].astype('str')[i] + ")")
+
+# Capture Rates Plot
+
+# Plot Distribution of predicted probabilities for every bin
+plt.figure(figsize=(12, 8));
+sns.stripplot(validation_df.bin_y_pred_prob, validation_df.y_pred_prob, jitter=0.15, hue=validation_df.y_test,
+              order=validation_df['bin_y_pred_prob'].cat.categories[::-1])
+plt.title("Distribution of predicted probabilities for every bin", fontsize=18)
+plt.xlabel("Predicted Probability Bins", fontsize=14);
+plt.ylabel("Predicted Probability", fontsize=14);
+plt.xticks(np.arange(10), x_label, rotation=45);
+plt.show()
+
+# Gains Table
+
+# Aggregate the data
+validation_df = validation_df.groupby(["bin_y_pred_prob", "y_test"]).agg({'y_test': ['count']})
+validation_df.columns = validation_df.columns.map(''.join)
+validation_df['prob_bin'] = validation_df.index.get_level_values(0)
+validation_df['y_test'] = validation_df.index.get_level_values(1)
+validation_df.reset_index(drop=True, inplace=True)
+
+# Get infection rate and percentage infections
+validation_df = validation_df.pivot(index='prob_bin', columns='y_test', values='y_testcount')
+validation_df['prob_bin'] = validation_df.index
+validation_df = validation_df.iloc[::-1]
+validation_df['prob_bin'] = x_label
+validation_df.reset_index(drop=True, inplace=True)
+validation_df = validation_df[['prob_bin', 0, 1]]
+validation_df.columns = ['prob_bin', "non_infections", "infections"]
+validation_df['perc_infections'] = validation_df['infections'] / validation_df['infections'].sum()
+validation_df['perc_non_infections'] = validation_df['non_infections'] / validation_df['non_infections'].sum()
+validation_df['cum_perc_infection'] = 100 * (validation_df.infections.cumsum() / validation_df.infections.sum())
+validation_df['cum_perc_non_infection'] = 100 * (
+            validation_df.non_infections.cumsum() / validation_df.non_infections.sum())
+
+# View Gains Table
+validation_df
+
+# Plot
+plt.figure(figsize=(12, 8));
+sns.set_style("white")
+sns.pointplot(x="prob_bin", y="cum_perc_infection", data=validation_df, legend=False, order=validation_df.prob_bin)
+plt.xticks(rotation=45);
+plt.ylabel("Infection Rate", fontsize=14)
+plt.xlabel("Prediction probability bin", fontsize=14)
+plt.title("Infection rate for every bin", fontsize=18)
+plt.show()
+
+
+# One big function.
+def captures(y_test, y_pred, y_prob_pred):
+    # Create Validation set
+    validation_df = {'y_test': y_test, 'y_pred': y_pred, 'y_pred_prob': y_prob_pred}
+    validation_df = pd.DataFrame(data=validation_df)
+
+    # Add binning column to the dataframe
+    validation_df['bin_y_pred_prob'] = pd.qcut(validation_df['y_pred_prob'], q=10)
+    # Change x label and column names
+    x_label = []
+    for i in range(len(validation_df['bin_y_pred_prob'].cat.categories[::-1].astype('str'))):
+        x_label.append(
+            "Bin" + str(i + 1) + "(" + validation_df['bin_y_pred_prob'].cat.categories[::-1].astype('str')[i] + ")")
+
+    # Plot Distribution of predicted probabilities for every bin
+    plt.figure(figsize=(12, 8));
+    sns.stripplot(validation_df.bin_y_pred_prob, validation_df.y_pred_prob, jitter=0.15, hue=validation_df.y_test,
+                  order=validation_df['bin_y_pred_prob'].cat.categories[::-1])
+    plt.title("Distribution of predicted probabilities for every bin", fontsize=18)
+    plt.xlabel("Predicted Probability Bins", fontsize=14);
+    plt.ylabel("Predicted Probability", fontsize=14);
+    plt.xticks(np.arange(10), x_label, rotation=45);
+    plt.show()
+
+    # Aggregate the data
+    validation_df = validation_df.groupby(["bin_y_pred_prob", "y_test"]).agg({'y_test': ['count']})
+    validation_df.columns = validation_df.columns.map(''.join)
+    validation_df['prob_bin'] = validation_df.index.get_level_values(0)
+    validation_df['y_test'] = validation_df.index.get_level_values(1)
+    validation_df.reset_index(drop=True, inplace=True)
+
+    # Get infection rate and percentage infections
+    validation_df = validation_df.pivot(index='prob_bin', columns='y_test', values='y_testcount')
+    validation_df['prob_bin'] = validation_df.index
+    validation_df = validation_df.iloc[::-1]
+    validation_df['prob_bin'] = x_label
+    validation_df.reset_index(drop=True, inplace=True)
+    validation_df = validation_df[['prob_bin', 0, 1]]
+    validation_df.columns = ['prob_bin', "non_infections", "infections"]
+    validation_df['perc_infections'] = validation_df['infections'] / validation_df['infections'].sum()
+    validation_df['perc_non_infections'] = validation_df['non_infections'] / validation_df['non_infections'].sum()
+    validation_df['cum_perc_infection'] = 100 * (validation_df.infections.cumsum() / validation_df.infections.sum())
+    validation_df['cum_perc_non_infection'] = 100 * (
+                validation_df.non_infections.cumsum() / validation_df.non_infections.sum())
+
+    # Plot for cumulative percentage infections
+    plt.figure(figsize=(12, 8));
+    sns.set_style("white")
+    sns.pointplot(x="prob_bin", y="cum_perc_infection", data=validation_df, legend=False, order=validation_df.prob_bin)
+    plt.xticks(rotation=45);
+    plt.ylabel("Infection Rate", fontsize=14)
+    plt.xlabel("Prediction probability bin", fontsize=14)
+    plt.title("Infection rate for every bin", fontsize=18)
+    plt.show()
+
+    return validation_df
+
+
+# Gains Table and Capture rates plot
+captures(y_test, y_pred_lr, y_prob_pred_lr)

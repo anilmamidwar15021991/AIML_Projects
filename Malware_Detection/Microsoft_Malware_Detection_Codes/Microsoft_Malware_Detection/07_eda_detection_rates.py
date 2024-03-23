@@ -1,0 +1,200 @@
+# 7. Understand Detection Rates by each Feature
+
+# Bar Plot
+def frequency_plot_groupedby_y(col, top_n=10):
+    top_n = top_n if train[col].nunique() > top_n else train[col].nunique()
+    print(f"{col} has {train[col].nunique()} unique values and type: {train[col].dtype}.")
+    print(train[col].value_counts(normalize=True, dropna=False).head())
+
+    top_cat = list(train[col].value_counts(dropna=False).index[:top_n])
+    df_has_detection = train.loc[(train[col].isin(top_cat)) & (train['HasDetections'] == 1), col].value_counts().head(
+        10).sort_index()
+    df_no_detection = train.loc[(train[col].isin(top_cat)) & (train['HasDetections'] == 0), col].value_counts().head(
+        10).sort_index()
+
+    # Plot
+    data = [go.Bar(x=df_has_detection.index, y=df_has_detection.values, name='Has Detections'),
+            go.Bar(x=df_no_detection.index, y=df_no_detection.values, name='No Detections')]
+
+    layout = go.Layout(dict(title=f"Counts of {col} by top-{top_n} categories",
+                            xaxis=dict(title=f'{col}',
+                                       showgrid=False,
+                                       zeroline=False,
+                                       showline=False, ),
+                            yaxis=dict(title='Counts',
+                                       showgrid=False,
+                                       zeroline=False,
+                                       showline=False, ),
+                            ),
+                       legend=dict(orientation="v"), barmode='group')
+
+    py.iplot(dict(data=data, layout=layout))
+
+
+frequency_plot_groupedby_y("Census_IsTouchEnabled", top_n=10)
+
+
+def plot_detection_rate(col, top_n=10):
+    top_n = top_n if train[col].nunique() > top_n else train[col].nunique()
+    print(f"{col} has {train[col].nunique()} unique values and type: {train[col].dtype}.")
+    print(train[col].value_counts(normalize=True, dropna=True).head())
+
+    top_cat = list(train[col].value_counts(dropna=True).index[:top_n])
+    top_cat_df = train.loc[train[col].isin(top_cat)]
+
+    df_touch_enabled = top_cat_df.loc[top_cat_df['Census_IsTouchEnabled'] == 1]
+    df_touch_disabled = top_cat_df.loc[top_cat_df['Census_IsTouchEnabled'] == 0]
+
+    df_touch_disabled = df_touch_disabled.groupby([col]).agg({'HasDetections': ['count', 'mean']})
+    df_touch_disabled = df_touch_disabled.sort_values(('HasDetections', 'count'), ascending=False).head(
+        top_n).sort_index()
+    df_touch_enabled = df_touch_enabled.groupby([col]).agg({'HasDetections': ['count', 'mean']})
+    df_touch_enabled = df_touch_enabled.sort_values(('HasDetections', 'count'), ascending=False).head(
+        top_n).sort_index()
+
+    # Plot
+    data1 = [go.Bar(x=df_touch_disabled.index, y=df_touch_disabled['HasDetections']['count'].values,
+                    name='Nontouch device counts'),
+             go.Scatter(x=df_touch_disabled.index, y=df_touch_disabled['HasDetections']['mean'],
+                        name='Detections rate for nontouch devices', yaxis='y2')]
+    data2 = [go.Bar(x=df_touch_enabled.index, y=df_touch_enabled['HasDetections']['count'].values,
+                    name='Touch device counts'),
+             go.Scatter(x=df_touch_enabled.index, y=df_touch_enabled['HasDetections']['mean'],
+                        name='Detections rate for touch devices', yaxis='y2')]
+
+    layout = go.Layout(dict(title=f"Counts of {col} by top-{top_n} categories for nontouch devices",
+                            xaxis=dict(title=f'{col}',
+                                       showgrid=False,
+                                       zeroline=False,
+                                       showline=False,
+                                       type='category'),
+                            yaxis=dict(title='Counts',
+                                       showgrid=False,
+                                       zeroline=False,
+                                       showline=False, ),
+                            yaxis2=dict(title='Detections rate', overlaying='y', side='right'),
+                            ),
+                       legend=dict(orientation="v"), barmode='group')
+
+    py.iplot(dict(data=data1, layout=layout))
+    layout['title'] = f"Counts of {col} by top-{top_n} categories for touch devices"
+    py.iplot(dict(data=data2, layout=layout))
+
+
+plot_detection_rate("AVProductsInstalled", top_n=6)
+
+train.groupby('HasDetections')['AVProductsInstalled'].value_counts()
+
+
+# define function for EDA for individual variables
+def plot_categorical_feature(col, bars=False, top_n=10, by_touch=False):
+    top_n = top_n if train[col].nunique() > top_n else train[col].nunique()
+    print(f"{col} has {train[col].nunique()} unique values and type: {train[col].dtype}.")
+    print(train[col].value_counts(normalize=True, dropna=True).head())
+    if not by_touch:
+        top_cat = list(train[col].value_counts(dropna=True).index[:top_n])
+        df_has_detection = train.loc[
+            (train[col].isin(top_cat)) & (train['HasDetections'] == 1), col].value_counts().head(10).sort_index()
+        df_no_detection = train.loc[
+            (train[col].isin(top_cat)) & (train['HasDetections'] == 0), col].value_counts().head(10).sort_index()
+
+        # Plot
+        data = [go.Bar(x=df_has_detection.index, y=df_has_detection.values, name='Has Detections'),
+                go.Bar(x=df_no_detection.index, y=df_no_detection.values, name='No Detections')]
+
+        layout = go.Layout(dict(title=f"Counts of {col} by top-{top_n} categories",
+                                xaxis=dict(title=f'{col}',
+                                           showgrid=False,
+                                           zeroline=False,
+                                           showline=False, ),
+                                yaxis=dict(title='Counts',
+                                           showgrid=False,
+                                           zeroline=False,
+                                           showline=False, ),
+                                ),
+                           legend=dict(orientation="v"), barmode='group')
+
+        py.iplot(dict(data=data, layout=layout))
+
+    else:
+        top_cat = list(train[col].value_counts(dropna=True).index[:top_n])
+        top_cat_df = train.loc[train[col].isin(top_cat)]
+
+        df_touch_enabled = top_cat_df.loc[top_cat_df['Census_IsTouchEnabled'] == 1]
+        df_touch_disabled = top_cat_df.loc[top_cat_df['Census_IsTouchEnabled'] == 0]
+
+        df_touch_disabled = df_touch_disabled.groupby([col]).agg({'HasDetections': ['count', 'mean']})
+        df_touch_disabled = df_touch_disabled.sort_values(('HasDetections', 'count'), ascending=False).head(
+            top_n).sort_index()
+        df_touch_enabled = df_touch_enabled.groupby([col]).agg({'HasDetections': ['count', 'mean']})
+        df_touch_enabled = df_touch_enabled.sort_values(('HasDetections', 'count'), ascending=False).head(
+            top_n).sort_index()
+        data1 = [go.Bar(x=df_touch_disabled.index, y=df_touch_disabled['HasDetections']['count'].values,
+                        name='Nontouch device counts'),
+                 go.Scatter(x=df_touch_disabled.index, y=df_touch_disabled['HasDetections']['mean'],
+                            name='Detections rate for nontouch devices', yaxis='y2')]
+        data2 = [go.Bar(x=df_touch_enabled.index, y=df_touch_enabled['HasDetections']['count'].values,
+                        name='Touch device counts'),
+                 go.Scatter(x=df_touch_enabled.index, y=df_touch_enabled['HasDetections']['mean'],
+                            name='Detections rate for touch devices', yaxis='y2')]
+
+        layout = go.Layout(dict(title=f"Counts of {col} by top-{top_n} categories for nontouch devices",
+                                xaxis=dict(title=f'{col}',
+                                           showgrid=False,
+                                           zeroline=False,
+                                           showline=False,
+                                           type='category'),
+                                yaxis=dict(title='Counts',
+                                           showgrid=False,
+                                           zeroline=False,
+                                           showline=False, ),
+                                yaxis2=dict(title='Detections rate', overlaying='y', side='right'),
+                                ),
+                           legend=dict(orientation="v"), barmode='group')
+
+        py.iplot(dict(data=data1, layout=layout))
+        layout['title'] = f"Counts of {col} by top-{top_n} categories for touch devices"
+        py.iplot(dict(data=data2, layout=layout))
+
+
+# Only bars
+plot_categorical_feature(col='Census_IsTouchEnabled', bars=True)
+
+# Only bars
+plot_categorical_feature(col='AVProductsInstalled', bars=True)
+
+# Both bars and detection rate
+plot_categorical_feature(col='AVProductsInstalled', bars=True, by_touch=True)
+
+train['AVProductsInstalled'].value_counts()
+
+# Feature: OsPlatformSubRelease
+plot_categorical_feature(col='OsPlatformSubRelease', bars=True, by_touch=True)
+
+# Feature: Census_ProcessorCoreCount
+plot_categorical_feature(col='Census_ProcessorCoreCount', bars=True, by_touch=True)
+
+# Feature: Census_TotalPhysicalRAM
+plot_categorical_feature(col='Census_TotalPhysicalRAM', bars=True, by_touch=True)
+
+# Feature: Census_InternalPrimaryDiagonalDisplaySizeInInches
+plot_categorical_feature(col='Census_InternalPrimaryDiagonalDisplaySizeInInches', bars=True, by_touch=True)
+
+# Feature: Census_PowerPlatformRoleName
+train['Census_PowerPlatformRoleName'].value_counts(dropna=False, normalize=True).cumsum()
+plot_categorical_feature(col='Census_PowerPlatformRoleName', bars=True)
+
+# Analyze numerical columns (grouped by target class)
+for cols in true_numerical_columns:
+    # Remove outliers
+    Q1 = train[[cols]].quantile(0.25)
+    Q3 = train[[cols]].quantile(0.75)
+    IQR = Q3 - Q1
+
+    df = train[~((train[[cols]] < (Q1 - 1.5 * IQR)) | (train[[cols]] > (Q3 + 1.5 * IQR))).any(axis=1)]
+
+    # Plot
+    plt.figure(figsize=(5, 5), dpi=100)
+    sns.boxplot(x='HasDetections', y=cols, data=df, notch=False)
+    plt.title('Box Plot of ' + cols + ' by Detection Class', fontsize=10)
+    plt.show()

@@ -1,0 +1,21 @@
+# 19. XGBoost
+# Define the model
+xgb = XGBClassifier(n_jobs = -1 , random_state=0)
+
+# Train the model
+xgb.fit(X_train,y_train)
+xgb
+
+# Prediction
+y_pred_xgb = xgb.predict(X_test)
+y_prob_pred_xgb = xgb.predict_proba(X_test)
+y_prob_pred_xgb = [x[1] for x in y_prob_pred_xgb]
+print("Y predicted : ",y_pred_xgb)
+print("Y probability predicted : ",y_prob_pred_xgb[:5])
+
+
+# Compute Evaluation Metric
+compute_evaluation_metric(xgb, X_test, y_test, y_pred_xgb, y_prob_pred_xgb)
+
+# Capture rates
+captures(y_test, y_pred_xgb, y_prob_pred_xgb)

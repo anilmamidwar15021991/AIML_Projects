@@ -1,0 +1,60 @@
+# 5. Data Preprocessing for EDA
+
+# Initial Shape
+train.shape
+
+# Drop the columns which have more than 90% values missing
+good_cols = list(train.columns)
+for col in train.columns:
+    missing_share = train[col].isnull().sum()/train.shape[0]
+    if missing_share > 0.9:
+        good_cols.remove(col)
+        print("Removed: ", col)
+
+# Drop the columns where one category contains more than 90% values
+for col in good_cols:
+    rate = train[col].value_counts(normalize=True, dropna=False).values[0]
+    if rate > 0.9:
+        good_cols.remove(col)
+        print("Removed: ", col)
+
+# Drop the columns which have only one unique value
+for col in good_cols:
+    unique_value = train[col].nunique()
+    if unique_value == 1:
+        good_cols.remove(col)
+        print("Removed: ", col)
+
+
+# Filter the data for relevant columns only
+train = train[good_cols]
+
+
+# Dimentions of data
+train.shape
+
+
+# Export. Make sure 'Data/Intermediate' exists.
+train.to_csv('Data/Intermediate/malware_df_clean.csv')
+
+
+# Numeric columns
+true_numerical_columns = [
+    'Census_ProcessorCoreCount',
+    'Census_PrimaryDiskTotalCapacity',
+    'Census_SystemVolumeTotalCapacity',
+    'Census_TotalPhysicalRAM',
+    'Census_InternalPrimaryDiagonalDisplaySizeInInches',
+    'Census_InternalPrimaryDisplayResolutionHorizontal',
+    'Census_InternalPrimaryDisplayResolutionVertical',
+    'Census_InternalBatteryNumberOfCharges',
+    'AVProductsInstalled'
+]
+
+
+# Binary columns
+binary_columns = [c for c in train.columns if train[c].nunique() == 2]
+
+# Categorical columns
+categorical_columns = [c for c in train.columns
+                       if (c not in true_numerical_columns) & (c not in binary_columns)]
