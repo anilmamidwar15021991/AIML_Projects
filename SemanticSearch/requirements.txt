@@ -1,0 +1,10 @@
+langchain
+pandas
+numpy
+langserve
+huggingface
+sentence-transformers
+pypdf2
+psycopg2
+fastapi
+uvicorn
