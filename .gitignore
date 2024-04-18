@@ -1,3 +1,6 @@
 *.keras
 *.env
 *.whl
+/config
+/__pycache__
+*config.env

@@ -101,9 +101,9 @@ class SharepointConnector:
 
 async def main():    
 
-    site_url='https://comscore.sharepoint.com/'
-    app_id='80b0d5d5-9e8b-4874-ba0b-b0fd6f9c6eef'
-    app_secret='~r~8Q~QJmCCc0ucMPRWTvEFUKxb6lZyCnuvr2dys'
+    site_url=''
+    app_id=''
+    app_secret=''
     folder_name='sample'
 
     sp=SharepointConnector(site_url,app_id,app_secret)    
