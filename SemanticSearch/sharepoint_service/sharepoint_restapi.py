@@ -103,7 +103,7 @@ async def main():
 
     site_url=''
     app_id=''
-    app_secret=''
+    
     folder_name='sample'
 
     sp=SharepointConnector(site_url,app_id,app_secret)    
