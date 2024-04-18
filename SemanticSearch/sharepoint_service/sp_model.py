@@ -77,7 +77,10 @@ class SPListItemsResponse:
             web_url=json_data.get('webUrl'),
             type=json_data['contentType']['name'],
             site_id=json_data['parentReference']['siteId']
-            )
+            )   
+    
+
+    
 
 
 

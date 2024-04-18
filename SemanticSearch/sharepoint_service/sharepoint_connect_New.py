@@ -1,12 +1,7 @@
 import os
 import sys;sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
-
-from sharepoint_service import sharepoint_restapi,sp_model,sharepoint_connect,sharepoint_connect_New,sharepoint_restapi_New
-
-
-
 from dotenv import dotenv_values
-
+from sharepoint_service import sharepoint_restapi,sp_model,sharepoint_connect,sharepoint_connect_New,sharepoint_restapi_New
 import aiohttp
 import asyncio
 import requests
@@ -59,7 +54,7 @@ class SharepointConnector:
             #get all items(files,folders) from document library - Policy '
 
             endpoint=f"{sp.base_url}/sites/{env_config['site_relative_path']}:/lists/Documents/items"
-            #splist_response_model=sp_model.FileObject([]) #creating dataclass object
+            
             splist_response_model=sp_model.FileObject('',[])
             payload={'Content-Type':'application/json',
                             'Authorization':f"Bearer {auth_token}"
@@ -67,20 +62,26 @@ class SharepointConnector:
                     }
             #items_list= await sharepoint_restapi_New.get_endpoint(sp,endpoint,auth_token,payload,response_model=splist_response_model)  #total listitems in doc library
             #splist_response_model= await sharepoint_restapi_New.get_endpoint(sp,endpoint,auth_token,payload,response_model=splist_response_model)
-            items_list=sp_model.SPListItemsResponse()
+            
+            items_list=[]
+
             while True:
+                '''
+                looping through page of results, each page result have only 200 
+                '''
                 splist_response_model= await sharepoint_restapi_New.get_endpoint(sp,endpoint,auth_token,payload,response_model=splist_response_model)
                 if not splist_response_model.next_pagelink:
                     break
-                items_list.append(splist_response_model.value)
+                items_list.extend(splist_response_model.value)
+                #items_list=items_list.append(splist_response_model.value)
                 endpoint=splist_response_model.next_pagelink
 
-            items_list=splist_response_model.value
-            print(f"total no of items in {env_config['drive_name']} are {items_list.count_items()}")
             
-            if items_list.count_items()>0:
+            print(f"total no of items in {env_config['drive_name']} are {len(items_list)}")
+            
+            if len(items_list)>0:
                 #get only files and skip folders
-                document_list= [item for item in items_list.value if item.type=='Document']
+                document_list= [item for item in items_list if item.type=='Document']
                 return document_list
             else:
                 print("f no fileobjects present in document library")

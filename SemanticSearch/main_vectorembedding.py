@@ -17,10 +17,7 @@ from sharepoint_service import sharepoint_connect,sharepoint_restapi,sp_model,sh
 from psycopg2 import sql
 from sqlalchemy import create_engine,text
 from sentence_transformers import SentenceTransformer,util
-
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import faiss
-
 from langchain_community.vectorstores.pgvector import PGVector
 from langchain_community.document_loaders import PyPDFLoader,DirectoryLoader
 from langchain_community.embeddings import SentenceTransformerEmbeddings
@@ -33,7 +30,7 @@ print('Creating SQL connection to PostGreSQL')
 
 db_connection_params = {
     "host": "localhost",
-    "dbname": "test",
+    "dbname": "ppl",
     "user": "postgres",
     "password": "admin",
     "port":"5432"
@@ -43,18 +40,15 @@ db_connection_params = {
 
 async def vector_embedding_spfiles():
 
-    # sp=sharepoint_restapi.SharepointConnector(env_config['site_url'],
-    #                                           env_config['App_Id'],
-    #                                           env_config['App_Secret'],
-    #                                           env_config['base_url'],
-    #                                           env_config['Access_Tokenurl'])
-
-    # sp_token= await sp.acquire_token()\
     sp=sharepoint_connect_New.SharepointConnector(env_config['site_url'],env_config['App_Id'],env_config['App_Secret'],env_config['base_url'],env_config['Access_Tokenurl'])
     sp_token= await sharepoint_restapi_New.acquire_token(sp)
     for file_detail in await sp.get_sp_files(sp_token):
         web_url=file_detail.web_url
         file_path='test.txt'
+
+        '''
+        writing the file names with their relative path to local txt file
+        '''
         with open(file_path, 'r') as file:
             existing_content = file.read()
         
@@ -66,6 +60,9 @@ async def vector_embedding_spfiles():
             file.write(amended_content)
         
         
+        """
+        reading only pdf files for now 
+        """
 
         if web_url.endswith('.pdf'):
             
@@ -73,7 +70,7 @@ async def vector_embedding_spfiles():
             # code to extract relative path from sp web url
             index= web_url.find(env_config['drive_name'])
             relative_path=unquote(web_url[index +len(env_config['drive_name']):].strip())
-            #pdf_content=await sp.get_file_content(sp_token,relative_path,'pdf')
+            pdf_content=await sp.get_file_content(sp_token,relative_path,'pdf')
             print("pdf")
 
 
@@ -151,17 +148,6 @@ def main():
 
 
 
-
-    # loader=DirectoryLoader(folder_localpath,glob="./*.pdf",loader_cls=PyPDFLoader)
-    # documents=loader.load()
-    # text_splitter=RecursiveCharacterTextSplitter(chunk_size=10000,chunk_overlap=200)
-    # text_chunks=text_splitter.split_documents(documents)
-
-
-
-        
-
-
     'using langchain to store evectors in postgres'
 
     # def calculate_average_execution_time(func,*args,**kwargs):
@@ -224,5 +210,6 @@ def main():
 
 if __name__=='__main__':
     asyncio.run(vector_embedding_spfiles())
+    #asyncio.run(main())
 
 

@@ -5,13 +5,19 @@ import os
 import glob
 import time
 from dotenv import load_dotenv
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores.pgvector import PGVector
+
 import psycopg2
 import json
 
 from sentence_transformers import SentenceTransformer,util
-from langchain.embeddings import SentenceTransformerEmbeddings
+
+
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import faiss
+
+from langchain_community.vectorstores.pgvector import PGVector
+from langchain_community.document_loaders import PyPDFLoader,DirectoryLoader
+from langchain_community.embeddings import SentenceTransformerEmbeddings
 
 import logging
 
@@ -52,7 +58,7 @@ below is th code to test the class and methods
 
 db_connection_params = {
     "host": "localhost",
-    "dbname": "test",
+    "dbname": "ppl",
     "user": "postgres",
     "password": "admin",
     "port":"5432"

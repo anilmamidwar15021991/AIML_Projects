@@ -8,17 +8,18 @@ import warnings
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
 
 from dotenv import load_dotenv
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores.pgvector import PGVector
+
 import psycopg2
 from sentence_transformers import SentenceTransformer,util
-from langchain.embeddings import SentenceTransformerEmbeddings
 import flask
 from flask import Flask,request,jsonify
 from flasgger import Swagger
 from search_content import searchcontent
 from flask_swagger_ui import get_swaggerui_blueprint
-#
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores.pgvector import PGVector
+from langchain_community.embeddings import SentenceTransformerEmbeddings
+
 warnings.filterwarnings("ignore")
 
 print(flask.__version__)

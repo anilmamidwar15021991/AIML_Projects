@@ -19,11 +19,7 @@ import msal
 
 
 base_dir=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
-env_config=dotenv_values(os.path.join(base_dir,'config\.env'))
-
-
-
-
+#env_config=dotenv_values(os.path.join(base_dir,'config\.env'))
 
         
 async def acquire_token(self):

@@ -6,7 +6,7 @@ services:
     restart: always
     container_name: postgres-pgvector
     environment:
-      POSTGRES_DB: test
+      POSTGRES_DB: ppl
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
     ports:
