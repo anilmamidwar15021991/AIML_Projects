@@ -59,7 +59,50 @@ class DriveResponseSchema:
             name=json_data.get('name'),
             id=json_data.get('id')
         )
+
+
+@dataclass
+class SPListResponse:
+
+    '''
+    data classto hold the reposne of all the lists in the site
+    '''
+    # lastmodifieddateitem:datetime
+    # listid:str
+    # weburl:str
+    # template:str
+    value:List[dict]
     
+
+    @classmethod
+    def from_json(cls,json_data):
+        items=[]
+        json_data=json_data.get('value',[])
+        items=[
+            {
+
+                'lastmodifieddateitem':x.get('lastModifiedDateTime'),
+                'id':x.get('id'),
+                'template':x.get('list',{}).get('template'),
+                'weburl':x.get('webUrl')
+            }   
+            for x in json_data        
+
+        ] 
+        return cls(items)
+    
+    def count_items(self) -> int:
+        '''function to return the count of list items
+        '''
+        return len(self.value)
+
+        
+        
+        
+
+        
+        
+
 
 @dataclass
 class SPListItemsResponse:
@@ -70,13 +113,20 @@ class SPListItemsResponse:
     web_url:str
     type:str
     site_id:str
+    drive_id:str
+    item_id:str
+ 
+    
 
     @classmethod
     def parsed_json(cls,json_data):
         return cls(
             web_url=json_data.get('webUrl'),
             type=json_data['contentType']['name'],
-            site_id=json_data['parentReference']['siteId']
+            site_id=json_data['parentReference']['siteId'],
+            drive_id="",
+            item_id=json_data['eTag'].split(',')[0].strip('"')
+            
             )   
     
 
@@ -87,6 +137,7 @@ class SPListItemsResponse:
 @dataclass
 class FileObject:
     next_pagelink:str
+    
     value:List[SPListItemsResponse]=field(default_factory=[])
     '''
     data class to hold the values of all list items from
@@ -95,9 +146,14 @@ class FileObject:
     # def __post_init__(self):
     #     self.value=[SPListItemsResponse.parsed_json(x) for x in self.value]
    
-    def process(self):
-        self.value=[SPListItemsResponse.parsed_json(x) for x in self.value]
-        self.next_pagelink=self.next_pagelink
+    # def __init__(self,next_pagelink,drive_id,value):
+    #     #self.value=[SPListItemsResponse.parsed_json(x) for x in self.value]
+    #     #self.next_pagelink=self.next_pagelink
+    #     self.drive_id=drive_id
+           
+        
+
+        
         
         
 
@@ -105,7 +161,7 @@ class FileObject:
     def from_json(cls,json_data):
         next_pagelink=json_data.get('@odata.nextLink')
         json_data= json_data.get('value',[])        
-        value=[SPListItemsResponse.parsed_json(x) for x in json_data]
+        value=[SPListItemsResponse.parsed_json(x) for x in json_data]        
         return cls(next_pagelink,value)
         #return cls(value=[SPListItemsResponse.parsed_json(x) for x in json_data])
 

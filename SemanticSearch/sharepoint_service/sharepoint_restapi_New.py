@@ -4,6 +4,7 @@ import sys;sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__
 from dotenv import dotenv_values
 
 import aiohttp
+from io import BytesIO
 import asyncio
 import requests
 from typing import Type, Optional,TypeVar,Generic
@@ -62,21 +63,43 @@ async def get_endpoint(self,request_url: str,auth_token: str,payload:dict[str,an
         #     }
         try:
             #result=response_model()
-            print(payload)
-            print(type(response_model))
-            print(response_model)
+            #print(payload)
+            #print(type(response_model))
+            #print(response_model)
             async with aiohttp.ClientSession(headers=payload) as session:
-                async with session.get(request_url) as response:
+
+                                
+                if payload['Content-Type']=='application/json':
+                                     
+                   async with session.get(request_url) as response:
+                        
+                        response.raise_for_status()
+                        json_data= await response.json()
+                        result=response_model.from_json(json_data)
+                        #print(result)
+                else:
+                     async with session.get(request_url) as response:
+                        chunks=[]
+                        response.raise_for_status()
+                        async for chunk in response.content.iter_any():
+
+                            chunks.append(chunk)
+                        result=b''.join(chunks)
+                        #print(result)
                      
-                    response.raise_for_status()
-                    if  payload['Content-Type']=='application/json':
-                         json_data=await response.json() 
+                
+                # async with session.get(request_url) as response:
+                     
+                #     response.raise_for_status()
+                #     if  payload['Content-Type']=='application/json':
+                #          json_data=await response.json()
+                #          result= response_model.from_json(json_data)
                          
-                    else:
-                         pdf_data= await response.content.read()                         
+                #     else:
+                #          pdf_data= await response.content.read()                         
                     
-                    result= response_model.from_json(json_data)
-                    print(result)
+                #     result= response_model.from_json(json_data)
+                #     print(result)
                      
         except Exception as  e:
             #logging goes here

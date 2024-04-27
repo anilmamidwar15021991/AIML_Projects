@@ -2,25 +2,29 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import os
+import io
 import sys;sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..')))
 from dotenv import dotenv_values,load_dotenv
 import glob
 import time
 from urllib.parse import unquote
-from PyPDF2 import PdfReader
+from PyPDF2 import PdfReader,PdfFileReader
 
 import asyncio
 from tqdm import tqdm
 import psycopg2
-from sharepoint_service import sharepoint_connect,sharepoint_restapi,sp_model,sharepoint_connect_New,sharepoint_restapi_New
+from sharepoint_service import sp_model,sharepoint_connect_New,sharepoint_restapi_New
 
 from psycopg2 import sql
 from sqlalchemy import create_engine,text
 from sentence_transformers import SentenceTransformer,util
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores.pgvector import PGVector
-from langchain_community.document_loaders import PyPDFLoader,DirectoryLoader
+from langchain_community.document_loaders import PyPDFLoader,TextLoader
+from langchain_core.document_loaders import Blob,BaseBlobParser
+from langchain_core.documents import Document
 from langchain_community.embeddings import SentenceTransformerEmbeddings
+from typing import AsyncIterator, Iterator
 
 
 env_config=dotenv_values('config\.env')
@@ -37,51 +41,125 @@ db_connection_params = {
     
 }
 
+vector_dbname='ppl_pdf_contents'
+
+
+CONNECTION_STRING=(f'postgresql://{db_connection_params["user"]}:{db_connection_params["password"]}@{db_connection_params["host"]}:{db_connection_params["port"]}/{db_connection_params["dbname"]}')
+#embeddings=SentenceTransformerEmbeddings(model_name="sentence-transformers/distiluse-base-multilingual-cased-v1")
+embeddings=SentenceTransformerEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
 
 async def vector_embedding_spfiles():
 
     sp=sharepoint_connect_New.SharepointConnector(env_config['site_url'],env_config['App_Id'],env_config['App_Secret'],env_config['base_url'],env_config['Access_Tokenurl'])
     sp_token= await sharepoint_restapi_New.acquire_token(sp)
+
+    '''
+    get all the document list from the sharepoint site and loop through documnet list of type 'documentLibrary'
+    '''
+
+    #list_items=await sp.get_lists(sp_token)
+    # documenttype_listitem = [listitem for listitem in list_items.value if listitem['template']=='documentLibrary']
+    # print(f"no of document libraries available are -{documenttype_listitem.count_items()}")
+    # if documenttype_listitem.count_items()!=0:
+    #     "loop through each list id to get all drive items"
+        
+    # else :
+    #     print(f"No document libraries are available ")
+
+    '''
+    Looping through each files of sharepoint
+    '''
     for file_detail in await sp.get_sp_files(sp_token):
-        web_url=file_detail.web_url
-        file_path='test.txt'
+        try:
 
-        '''
-        writing the file names with their relative path to local txt file
-        '''
-        with open(file_path, 'r') as file:
-            existing_content = file.read()
-        
-        # Append new text to the existing content
-        amended_content = existing_content +f"\n {web_url}"
-
-        # Write amended content back to the file
-        with open(file_path, 'w') as file:
-            file.write(amended_content)
-        
-        
-        """
-        reading only pdf files for now 
-        """
-
-        if web_url.endswith('.pdf'):
+            web_url=file_detail.web_url
             
-            print(f"pdf file -- {web_url}")
-            # code to extract relative path from sp web url
-            index= web_url.find(env_config['drive_name'])
-            relative_path=unquote(web_url[index +len(env_config['drive_name']):].strip())
-            pdf_content=await sp.get_file_content(sp_token,relative_path,'pdf')
-            print("pdf")
+            file_path='test.txt'
 
+            '''
+            writing the file names with their relative path to a local txt file
+            '''
+            with open(file_path, 'r') as file:
+                existing_content = file.read()
+            
+            # Append new text to the existing content
+            amended_content = existing_content +f"\n {web_url}"
 
+            # Write amended content back to the file
+            with open(file_path, 'w') as file:
+                file.write(amended_content)
+            
+            
+            """
+            reading only pdf files for now 
+            """
 
+            if web_url.endswith('.pdf'):
+                drive_id=file_detail.drive_id
+                item_id=file_detail.item_id
+                print(f"pdf file -- {web_url}")
+                # code to extract relative path from sp web url
+                # index= web_url.find(env_config['drive_name'])
+                # relative_path=unquote(web_url[index +len(env_config['drive_name']):].strip())
 
+                pdf_binary_content=await sp.get_file_content(sp_token,drive_id,item_id,'pdf')  
+                
+                documents=""
+                if pdf_binary_content is not None:
 
+                    pdf_data=PdfReader(io.BytesIO(pdf_binary_content))
+                    print(f"Total no of pages are - {len(pdf_data.pages)}")
+                    pdf_text=" "
+                    documents=[]
+                    for page_num in range(len(pdf_data.pages)):
+                        page=pdf_data.pages[page_num]
+                        pdf_text =page.extract_text()
+                        document=Document(page_content=pdf_text,
+                                        metadata={"source":web_url, "page_number":page_num})
+                        documents.append(document)
+                    
+                    
+                        # blob=Blob(data=pdf_text)                
+                        # parser=MyParser()
+                        # document=parser.lazy_parse(blob,page_num,web_url)
+                        # documents.append(document)
+
+                        # new_documents=[]
+                        # for doc in documents:
+                        #     temp_doc=doc.copy(update= {'page_content':f"{doc.page_content} \n {web_url}"})
+                        #     new_documents.append(temp_doc)
+
+                    text_splitter=RecursiveCharacterTextSplitter(chunk_size=20000,chunk_overlap=0)
+                    text_chunks=text_splitter.split_documents(documents) 
+                    COLLECTION_NAME="ppl_documents_allminiLM1"
+                    
+
+                    #create the vector store
+                    start_time=time.time()
+                    vectordb=PGVector.from_documents(documents=text_chunks,
+                                                    embedding=embeddings,
+                                                    collection_name=COLLECTION_NAME,
+                                                    connection_string=CONNECTION_STRING,
+                                                    pre_delete_collection=False) 
+                    
+                else:
+                    print("unable to read file content") 
+
+                
+        except Exception as e:
+            print(f"unable to read the file- {e}")
+
+        finally:
+            print("Process completed")            
+                
+
+            
 
 
 def main():
     
-    folder_localpath=r'\\Cviadpaea04\c\CSE\temp_files'
+    folder_localpath=r'\\Cviadpaea04\c\CSE\ppl_pdffiles'
     pdf_files=glob.glob(os.path.join(folder_localpath,'*pdf'))
     ppl_hyperlink_data='PPL_Data_formated.xlsx'
 
@@ -127,7 +205,7 @@ def main():
 
             
 
-            COLLECTION_NAME="ppl_documents_allminiLM"
+            COLLECTION_NAME="ppl_documents_allminiLM1"
                 
 
             #create the vector store
@@ -144,72 +222,12 @@ def main():
             print(f" error for file {e}")
         finally:
             print("")
-        
-
-
-
-    'using langchain to store evectors in postgres'
-
-    # def calculate_average_execution_time(func,*args,**kwargs):
-    #     total_execution_time=0
-    #     num_runs=10
-    #     for _ in range(num_runs):
-    #         start_time=time.time()
-    #         results=func(*args,**kwargs) #execute the function with its arguments
-    #         end_time=time.time()
-    #         execution_time=end_time-start_time
-    #         total_execution_time+=execution_time
-    #     average_execution_time=round(total_execution_time/num_runs,2)
-    #     #print(results)
-    #     print(f"\nthe function took an avearge of {average_execution_time} seconds to execute")
-    #     return results
-
-
-
-    #load the store
-
-
-'semantic search using sentence tarnsformer methods'
-
-# conn=psycopg2.connect(CONNECTION_STRING)
-# cursor=conn.cursor()
-# model=SentenceTransformer("sentence-transformers/distiluse-base-multilingual-cased-v1")
-# #print(embeddings.embed_query(query))
-
-# corpus_embedding_query=f"select embedding from langchain_pg_embedding"
-# cursor.execute(corpus_embedding_query)
-# corpus_embedding_string=cursor.fetchall()
-# print(corpus_embedding_string)
-# import torch
-# import ast
-
-# 'converting list of string (vectors) from pg to tensors'
-# tensors = []
-# for tuple_ in corpus_embedding_string:
-#     tensor = []
-#     for x in tuple_:
-#         # Check if the element is a string
-#         if isinstance(x, str):
-#             # Convert the string representation of the list to a Python list
-#             x_list = ast.literal_eval(x)
-#             # Convert each element in the list to float
-#             x_list = [float(item) for item in x_list]
-#             tensor.extend(x_list)  # Extend the tensor with the list elements
-#         else:
-#             tensor.append(x)  # Append non-string elements directly
-#     tensors.append(torch.tensor(tensor))
-
-
-# corpus_embedding_tensor=torch.stack(tensors)
-
-# prompt_embedding=model.encode(query,convert_to_tensor=True)
-
-# cos_scores=util.semantic_search(prompt_embedding,corpus_embedding_tensor,top_k=3)
-# top_results=torch.topk(cos_scores,k=3)
 
 
 if __name__=='__main__':
     asyncio.run(vector_embedding_spfiles())
-    #asyncio.run(main())
+    #main()
+
+
 
 
