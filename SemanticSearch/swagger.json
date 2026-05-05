@@ -1,0 +1,49 @@
+{
+    "swagger": "3.0.2",
+    "info": {
+      "title": "PPL_DocsSearch_API"
+      
+    },
+    "paths": {
+        "/": {
+          "get": {
+            "description": "Returns message showing app is up",
+            "produces": [
+              "application/json"
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful operation"
+              }
+            }
+          }
+        },
+        "/Ssearch": {
+          "get": {
+            "description": "Returns search results based on query parameter",
+            "parameters": [
+              {
+                "name": "query",
+                "in": "query",
+                "description": "Search query",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            ],
+            "produces": [
+              "application/json"
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful operation with file name , search content and similarity score"
+              }
+            }
+          }
+        }
+      }
+      
+}
+
+      
