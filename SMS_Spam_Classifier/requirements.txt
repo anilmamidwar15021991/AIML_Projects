@@ -1,6 +1,7 @@
+numpy==1.26.4
 pandas
-numpy
-nltk
-xgboost==1.5.2
 scikit-learn
+xgboost==1.5.2
+setuptools<81
 streamlit
+nltk
